@@ -76,7 +76,7 @@ Utiliza a **Groq Cloud** para inferência em ultra-baixa latência:
 ## 📂 Estrutura do Projeto
 
 ```text
-📁 qualidade-injecao/
+📁 smart-quality-injection/
 │
 ├── 📁 src/
 │   ├── ai_engine.py       # Lógica da IA (RAG e Relatórios)
@@ -90,3 +90,60 @@ Utiliza a **Groq Cloud** para inferência em ultra-baixa latência:
 ├── app.py                 # Aplicação Principal
 ├── requirements.txt       # Dependências
 └── README.md              # Documentação
+```
+## ⚙️ Como Executar Localmente
+
+Siga os passos abaixo para rodar a aplicação na sua máquina:
+
+1. **Clone o repositório**
+   ```bash
+   git clone [https://github.com/raissa-sf/smart-quality-injection.git](https://github.com/raissa-sf/smart-quality-injection.git)
+   cd smart-quality-injection
+
+2. **Crie um ambiente virtual (Opcional, mas recomendado)**
+   ```bash
+   python -m venv venv
+    # Windows:
+    venv\Scripts\activate
+    # Linux/Mac:
+    source venv/bin/activate
+
+3. **Instale as dependências**
+   ```bash
+   pip install -r requirements.txt
+
+4. **Configure as Credenciais (Veja abaixo)**
+
+ ## 🔐 Configuração das Credenciais
+
+Este projeto utiliza chaves de API que não são compartilhadas no repositório. Para executar localmente, siga os passos:
+
+1. Na raiz do projeto, crie uma pasta chamada `.streamlit`.
+2. Dentro dela, crie um arquivo chamado `secrets.toml`.
+3. Cole o seguinte modelo e preencha com suas próprias credenciais:
+
+```toml
+# .streamlit/secrets.toml
+
+# 1. Chave da Groq Cloud (Para a IA)
+[GROQ_API]
+key = "gsk_SUA_CHAVE_DA_GROQ_AQUI"
+
+# 2. Credenciais do Google Sheets (Para o Banco de Dados)
+# Baixe o JSON da sua Service Account no Google Cloud Console e preencha abaixo:
+[connections.gsheets]
+type = "service_account"
+project_id = "seu-project-id"
+private_key_id = "..."
+private_key = "-----BEGIN PRIVATE KEY-----\n..."
+client_email = "seu-email@exemplo.com"
+client_id = "..."
+auth_uri = "[https://accounts.google.com/o/oauth2/auth](https://accounts.google.com/o/oauth2/auth)"
+token_uri = "[https://oauth2.googleapis.com/token](https://oauth2.googleapis.com/token)"
+auth_provider_x509_cert_url = "[https://www.googleapis.com/oauth2/v1/certs](https://www.googleapis.com/oauth2/v1/certs)"
+client_x509_cert_url = "..."
+```
+5. **Execute a aplicação**
+ ```bash
+   streamlit run app.py
+
