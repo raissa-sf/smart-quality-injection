@@ -10,7 +10,7 @@ class Database:
         self.planilha = self.client.open("DB_Sistema_Qualidade")
 
     def buscar_dados_completos(self, numero_op):
-        """Busca dados da OP e cruza com o cadastro de peças."""
+        
         try:
             aba_ops = self.planilha.worksheet("ordens_producao")
             op_encontrada = next((op for op in aba_ops.get_all_records() if str(op['numero_op']) == str(numero_op)), None)
@@ -22,7 +22,7 @@ class Database:
             peca_dados = next((p for p in aba_pecas.get_all_records() if p['id_peca'] == op_encontrada['id_peca']), None)
             
             if peca_dados:
-                # Unifica os dados em um único dicionário padrão
+               
                 return {**op_encontrada, **peca_dados}
             return None
         except Exception as e:
@@ -47,4 +47,5 @@ class Database:
         try:
             return self.planilha.worksheet("log_inspecoes").get_all_records()[-quantidade:]
         except:
+
             return []
