@@ -1,4 +1,8 @@
 # 🏭 Sistema Inteligente de Controle de Qualidade - Injeção Plástica
+**Autor:** Raissa Santos Feitosa  
+**GitHub:** [raissa-sf](https://github.com/raissa-sf)  
+**LinkedIn:** [Raissa Santos Feitosa](https://www.linkedin.com/in/raissa-santos-feitosa-73485b1a3/)
+
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue?style=for-the-badge&logo=python)
 ![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit)
@@ -76,20 +80,21 @@ Utiliza a **Groq Cloud** para inferência em ultra-baixa latência:
 ## 📂 Estrutura do Projeto
 
 ```text
-📁 smart-quality-injection/
-│
-├── 📁 src/
-│   ├── ai_engine.py       # Lógica da IA (RAG e Relatórios)
-│   ├── database.py        # Conexão e queries ao banco de dados
-│   └── utils.py           # Funções auxiliares 
-│
-├── 📁 data/
-│   ├── manual_processo.pdf  # Base de conhecimento da IA
-│
-├── 📁 assets/            
-├── app.py                 # Aplicação Principal
-├── requirements.txt       # Dependências
-└── README.md              # Documentação
+smart-quality-injection/
+├─ config/               # (Opcional) Configurações gerais
+├─ data/
+│  ├─ manual_processo.pdf  # Base de conhecimento da IA (RAG)
+│  └─ credenciais.json     # (Ignorado no Git)
+├─ src/
+│  ├─ ai_engine.py         # Lógica da IA (Groq + RAG)
+│  ├─ database.py          # Conexão com Google Sheets API
+│  └─ utils.py             # Funções auxiliares e CSS
+├─ assets/                 # Imagens para o README
+├─ .streamlit/
+│  └─ secrets.toml         # Chaves de API (Ignorado no Git)
+├─ app.py                  # Script principal da aplicação
+├─ requirements.txt
+└─ README.md
 ```
 ## ⚙️ Como Executar Localmente
 
@@ -97,7 +102,7 @@ Siga os passos abaixo para rodar a aplicação na sua máquina:
 
 1. **Clone o repositório**
    ```bash
-   git clone [https://github.com/raissa-sf/smart-quality-injection.git](https://github.com/raissa-sf/smart-quality-injection.git)
+   git clone https://github.com/raissa-sf/smart-quality-injection.git
    cd smart-quality-injection
 
 2. **Crie um ambiente virtual (Opcional, mas recomendado)**
@@ -146,4 +151,9 @@ client_x509_cert_url = "..."
 5. **Execute a aplicação**
  ```bash
    streamlit run app.py
+```
+## 📞 Contato
+Gostou do projeto ou tem alguma dúvida? Entre em contato!
 
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/raissa-santos-feitosa-73485b1a3/)
+[![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:raissa.feitosa06@gmail.com)
