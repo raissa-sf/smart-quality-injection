@@ -12,7 +12,6 @@ def carregar_imagem_drive(url):
             return None
             
         if "drive.google.com" in url:
-            # Extrai o ID do arquivo da URL
             if "id=" in url:
                 file_id = url.split("id=")[1].split("&")[0]
             elif "/d/" in url:
@@ -20,12 +19,12 @@ def carregar_imagem_drive(url):
             else:
                 return None
             
-            # Formata para o link de download direto
             url = f"https://drive.google.com/uc?export=download&id={file_id}"
             
         response = requests.get(url, timeout=10)
-        response.raise_for_status() # Garante que a requisição foi bem sucedida
+        response.raise_for_status() 
         return Image.open(BytesIO(response.content))
     except Exception as e:
         print(f"Erro ao carregar imagem: {e}")
+
         return None
