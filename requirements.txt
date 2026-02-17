@@ -1,0 +1,10 @@
+streamlit
+gspread
+oauth2client
+pandas
+python-dotenv
+langchain-groq
+langchain-core
+PyPDF2
+Pillow
+requests
