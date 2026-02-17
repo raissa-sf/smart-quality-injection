@@ -5,34 +5,27 @@ from src.database import Database
 from src.ai_engine import AIEngine
 from src.utils import carregar_imagem_drive
 
-# --- 1. CONFIGURAÇÃO (Sempre a primeira linha) ---
+# --- 1. CONFIGURAÇÃO ---
 st.set_page_config(page_title="Qualidade Injeção", layout="wide")
 
 # --- 2. INICIALIZAÇÃO DO ESTADO E PERSISTÊNCIA ---
-
-# CORREÇÃO 1: Controle de Logout para evitar loop
 if "logout_realizado" not in st.session_state:
     st.session_state.logout_realizado = False
-
-# CORREÇÃO 2: Tenta recuperar o login da URL (Salvando o dia caso dê F5)
-# Só recupera se o usuário NÃO acabou de clicar em sair
+    
 if not st.session_state.logout_realizado:
     params = st.query_params
     usuario_url = params.get("operador")
     turno_url = params.get("turno")
 
-    # Se achou dados na URL e a sessão ainda está vazia, restaura o login IMEDIATAMENTE:
     if usuario_url and turno_url:
         if "identificado" not in st.session_state or not st.session_state.identificado:
             st.session_state.identificado = True
             st.session_state.input_operador = usuario_url
             st.session_state.input_turno = turno_url
 else:
-    # Se fez logout, garante que as variáveis de URL locais sejam ignoradas
     usuario_url = None
     turno_url = None
 
-# 2. Inicialização das variáveis (Valores Padrão)
 if "identificado" not in st.session_state:
     st.session_state.identificado = False
 
@@ -45,7 +38,6 @@ if "input_turno" not in st.session_state:
 if "confirmar_salvamento" not in st.session_state:
     st.session_state.confirmar_salvamento = False
 
-# Esta variável controla a mensagem verde de "Dados Salvos"
 if "msg_sucesso" not in st.session_state:
     st.session_state.msg_sucesso = False
 
@@ -53,7 +45,7 @@ if "msg_sucesso" not in st.session_state:
 @st.cache_resource(show_spinner="Carregando sistema...")
 def inicializar_componentes():
     try:
-        # Tenta conectar
+
         db = Database(credentials_path="data/credenciais.json")
         ai = AIEngine()
         contexto = ai.extrair_texto_pdf("data/manual_processo.pdf")
@@ -64,7 +56,7 @@ def inicializar_componentes():
 
 db, ai, contexto_manual = inicializar_componentes()
 
-# --- 4. CSS PARA BOLINHA IA E REVISÃO (MANTIDO ORIGINAL) ---
+# --- 4. CSS PARA BOLINHA IA E REVISÃO  ---
 st.markdown("""
 <style>
     /* 1. LOCALIZA O CONTAINER DO POPOVER */
@@ -135,38 +127,31 @@ st.markdown("""
 def confirmar_identificacao():
     if st.session_state.input_operador and st.session_state.input_turno:
         st.session_state.identificado = True
-        st.session_state.logout_realizado = False # Resetar flag de logout
-        # Grava na URL para não perder se der F5
+        st.session_state.logout_realizado = False 
         st.query_params["operador"] = st.session_state.input_operador
         st.query_params["turno"] = st.session_state.input_turno
 
 def reset_apenas_inspecao():
     """Limpa apenas os dados da peça, mantendo o operador logado."""
-    # 1. Limpa o campo da OP
+
     if 'input_op' in st.session_state:
         st.session_state.input_op = "" 
     
-    # 2. Reseta flags
     st.session_state.confirmar_salvamento = False
     
-    # 3. Limpa campos de medição e obs
     if 'input_medida' in st.session_state:
         st.session_state.input_medida = 0.0
     if 'input_obs' in st.session_state:
         st.session_state.input_obs = ""
         
-    # 4. Limpa APENAS os checkboxes (chaves que começam com 'ch_')
     chaves_para_deletar = [key for key in st.session_state.keys() if key.startswith("ch_")]
     for key in chaves_para_deletar:
         del st.session_state[key]
 
 def callback_salvar_limpar(linha_dados):
     """Função chamada pelo botão (on_click) para salvar e limpar."""
-    # 1. Salva no Banco
     db.salvar_log(linha_dados)
-    # 2. Ativa mensagem de sucesso
     st.session_state['msg_sucesso'] = True
-    # 3. Limpa a tela para a próxima peça
     reset_apenas_inspecao()
 
 @st.dialog("Confirmar Salvamento")
@@ -176,34 +161,28 @@ def popup_salvar(linha_dados):
     
     col_a, col_b = st.columns(2)
     
-    # Botão da Esquerda: Salvar Realmente
     if col_a.button("SALVAR NO SISTEMA", use_container_width=True, type="primary"):
-        # Chama a função que salva e limpa
         callback_salvar_limpar(linha_dados)
         st.rerun()
         
-    # Botão da Direita: Voltar
     if col_b.button("ALTERAR INSPEÇÃO", use_container_width=True):
-        st.rerun() # Fecha o pop-up e volta para a tela
+        st.rerun() 
 
 @st.dialog("Cancelar Operação")
 def popup_cancelar():
     st.warning("⚠️ Tem certeza? Todos os dados preenchidos nesta peça serão perdidos.")
     
     col_a, col_b = st.columns(2)
-    
-    # Botão da Esquerda: Confirma Cancelamento
+
     if col_a.button("🗑️ CONFIRMAR CANCELAMENTO", use_container_width=True, type="primary"):
-        reset_apenas_inspecao() # Limpa tudo
+        reset_apenas_inspecao()
         st.rerun()
         
-    # Botão da Direita: Voltar
     if col_b.button("✏️ ALTERAR INSPEÇÃO", use_container_width=True):
-        st.rerun() # Fecha o pop-up
+        st.rerun() 
 
 # --- 6. FLUXO 1: TELA DE IDENTIFICAÇÃO (Login) ---
 if not st.session_state.identificado:
-    # CORREÇÃO 3: Se estiver na tela de login e houver lixo na URL, limpa.
     if st.query_params and st.session_state.logout_realizado:
         st.query_params.clear()
 
@@ -219,51 +198,43 @@ else:
     # SIDEBAR (Sanduíche com dados do login)
     with st.sidebar:
         st.header("👤 Inspetor Ativo")
-        # Aqui usamos o valor que foi capturado no login/URL
         nome_inspetor = st.session_state.get('input_operador', 'Não identificado')
         turno_inspetor = st.session_state.get('input_turno', 'Não identificado')
         
         st.info(f"**Nome:** {nome_inspetor}\n\n**Turno:** {turno_inspetor}")
-        
-        # CORREÇÃO 4: Botão de Trocar Operador corrigido
+
         if st.button("🔄 Trocar Operador"):
             st.session_state.identificado = False
-            st.session_state.logout_realizado = True # Importante: marca que saiu intencionalmente
+            st.session_state.logout_realizado = True 
             st.session_state.input_operador = ""
             st.session_state.input_turno = ""
-            st.query_params.clear() # Limpa a URL
+            st.query_params.clear() 
             st.rerun()
         
         st.divider()
         st.subheader("📋 Passagem de Turno")
         
-        # Busca histórico recente
         historico = db.obter_historico_recente(50)
         
         if historico:
-            # Filtra OPs únicas para o selectbox
             lista_ops = list(set([str(r['numero_op']) for r in historico]))[::-1]
             op_sel = st.selectbox("Analisar OP:", ["Selecione..."] + lista_ops)
             
-            # Botão para chamar a IA
             if st.button("🤖 Gerar Relatório de Turno", use_container_width=True):
                 if op_sel != "Selecione...":
                     
-                    # 1. Filtra os dados da OP selecionada
                     dados_op = [r for r in historico if str(r['numero_op']) == op_sel]
                     
                     if dados_op:
-                        # 2. Prepara os dados matemáticos para a IA
+
                         total_inspecoes = len(dados_op)
-                        
-                        # Contagem de reprovas
+       
                         total_reprovas = 0
                         for r in dados_op:
                             res = r.get('resultado') or r.get('resultado_final') or r.get('status')
                             if res == 'Reprovado':
                                 total_reprovas += 1
-                        
-                        # Observações
+             
                         lista_obs = []
                         for r in dados_op:
                             texto = r.get('observacao') or r.get('obs') or r.get('observacoes')
@@ -272,7 +243,6 @@ else:
 
                         texto_obs = "; ".join(lista_obs) if lista_obs else "Sem observações relevantes."
 
-                        # 3. Chama a IA com visual de carregamento
                         with st.spinner(f"Analisando {total_inspecoes} registros da OP {op_sel}..."):
                             try:
                                 resumo = ai.gerar_relatorio_turno(
@@ -281,8 +251,7 @@ else:
                                     reprovas=total_reprovas, 
                                     observacoes=texto_obs
                                 )
-                                
-                                # 4. Mostra o resultado
+
                                 st.markdown("### 📢 Relatório do Supervisor")
                                 st.info(resumo)
                                 
@@ -326,30 +295,26 @@ else:
                     medida = st.number_input("Valor Medido (mm):", format="%.3f", key="input_medida")
 
                 with tab3:
-                    # 1. Campo de Observação
+
                     obs = st.text_area("Observações Técnicas:", key="input_obs", placeholder="Digite aqui se houver alguma observação...")
                     
-                    # 2. Cálculos (Lógica de Aprovação)
                     status_v = "OK" if not any(respostas) else "NG (Defeito)"
                     limite_sup = float(dados['cota_nominal']) + float(dados['tolerancia_mais'])
                     limite_inf = float(dados['cota_nominal']) - float(dados['tolerancia_menos'])
-                    
-                    # Verifica dimensão
+
                     status_dim = "Aprovado" if limite_inf <= medida <= limite_sup else "Reprovado"
-                    
-                    # Resultado Final
+
                     if status_v == "OK" and status_dim == "Aprovado":
                         resultado_final = "Aprovado"
-                        cor_resultado = "#28a745" # Verde
+                        cor_resultado = "#28a745" 
                         icone_resultado = "✅"
                     else:
                         resultado_final = "Reprovado"
-                        cor_resultado = "#dc3545" # Vermelho
+                        cor_resultado = "#dc3545" 
                         icone_resultado = "🚫"
 
                     st.divider()
 
-                    # 3. O RESUMO (HTML) - Mantido FIEL ao original
                     st.markdown(f"""
 <div style="background-color: #f0f2f6; padding: 15px; border-radius: 10px; border-left: 5px solid {cor_resultado};">
 <h4 style="margin-top:0;">📝 Resumo da Inspeção</h4>
@@ -367,12 +332,10 @@ else:
 </div>
 """, unsafe_allow_html=True)
 
-                    st.write("") # Espaçamento
+                    st.write("")
 
-                    # 4. BOTÕES PRINCIPAIS
                     col_save, col_cancel = st.columns(2)
 
-                    # Botão Confirmar e Salvar
                     if col_save.button("CONFIRMAR E SALVAR", use_container_width=True, type="primary"):
                         linha_para_salvar = [
                             datetime.now().strftime("%d/%m/%Y %H:%M"), 
@@ -386,11 +349,10 @@ else:
                         ]
                         popup_salvar(linha_para_salvar)
 
-                    # Botão Cancelar
+
                     if col_cancel.button("CANCELAR", use_container_width=True):
                         popup_cancelar()
 
-                    # Mensagem de sucesso
                     if st.session_state.get('msg_sucesso'):
                         st.success("REGISTRO SALVO COM SUCESSO!")
                         st.session_state['msg_sucesso'] = False
@@ -415,4 +377,5 @@ with st.popover("🤖"):
                 except Exception as e:
                     st.error(f"Erro inesperado: {e}")
         else:
+
             st.warning("Escreva algo antes de enviar.")
