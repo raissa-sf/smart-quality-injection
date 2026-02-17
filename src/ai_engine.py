@@ -4,7 +4,7 @@ from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, SystemMessage
 from dotenv import load_dotenv
 
-# Carrega as variáveis do arquivo .env (vamos criar ele a seguir)
+
 load_dotenv()
 
 class AIEngine:
@@ -55,4 +55,5 @@ class AIEngine:
             - Mantenha a resposta curta e objetiva para leitura rápida em tablets/celulares."""),
             HumanMessage(content=pergunta)
         ]
+
         return self.chat.invoke(mensagens).content
